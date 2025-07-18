@@ -1,0 +1,47 @@
+server:
+  name: "elector-cab-svc"
+  port: ":8002"
+
+logger:
+  level: "debug"
+  format: "text"
+
+database:
+  sql:
+    url: "postgresql://postgres:postgres@db:XXXX/postgres?sslmode=disable"
+  redis:
+    addr: "localhost:7200"
+    password: "example"
+    db: 0
+    lifetime: 15 #minutes
+
+oauth:
+  google:
+    client_id: "client_id"
+    client_secret: "megasupersecret"
+    redirect_url: "http://localhost:XXXX/re-flow/v1/public/oauth/google/callback"
+
+jwt:
+  user:
+    access_token:
+      secret_key: "supersecretkey"
+      token_lifetime: 900
+    refresh_token:
+      secret_key: "refreshsuperkey"
+      encryption_key: "f6tD7wVYNvXMm4MwqivfpB9Gf+HYz8a3"  # Key for decrypting Refresh Token in the database
+      token_lifetime: 604800
+  service:
+    secret_key: "servicesuperkey"
+
+kafka:
+  brokers:
+    - "re-news-kafka:XXXX"
+
+swagger:
+  enabled: true
+  url: "/swagger"
+  port: "XXXX"
+
+properties:
+  residence:
+    api_key: "apikey" #form https://rapidapi.com/wirefreethought/api/geodb-cities

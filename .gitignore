@@ -1,0 +1,11 @@
+git init
+.idea
+vendor
+node_modules
+
+main
+cmd/elector-cab-svc/main
+
+config_local.yaml
+config_docker.yaml
+
