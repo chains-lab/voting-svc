@@ -12,7 +12,7 @@ import (
 
 const proposalVotesTable = "proposal_votes"
 
-type ProposalVoteModel struct {
+type ProposalVote struct {
 	ID         uuid.UUID `db:"id"`
 	ProposalID uuid.UUID `db:"proposal_id"`
 	UserID     uuid.UUID `db:"user_id"`
@@ -88,13 +88,13 @@ func (q ProposalVotesQ) Insert(ctx context.Context, in InsertProposalVoteInput) 
 
 // ---- Read
 
-func (q ProposalVotesQ) Get(ctx context.Context) (ProposalVoteModel, error) {
+func (q ProposalVotesQ) Get(ctx context.Context) (ProposalVote, error) {
 	query, args, err := q.selector.Limit(1).ToSql()
 	if err != nil {
-		return ProposalVoteModel{}, fmt.Errorf("building selector query for table %s: %w", proposalVotesTable, err)
+		return ProposalVote{}, fmt.Errorf("building selector query for table %s: %w", proposalVotesTable, err)
 	}
 
-	var m ProposalVoteModel
+	var m ProposalVote
 	var row *sql.Row
 	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		row = tx.QueryRowContext(ctx, query, args...)
@@ -111,7 +111,7 @@ func (q ProposalVotesQ) Get(ctx context.Context) (ProposalVoteModel, error) {
 	return m, err
 }
 
-func (q ProposalVotesQ) Select(ctx context.Context) ([]ProposalVoteModel, error) {
+func (q ProposalVotesQ) Select(ctx context.Context) ([]ProposalVote, error) {
 	query, args, err := q.selector.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("building selector query for table %s: %w", proposalVotesTable, err)
@@ -128,9 +128,9 @@ func (q ProposalVotesQ) Select(ctx context.Context) ([]ProposalVoteModel, error)
 	}
 	defer rows.Close()
 
-	var out []ProposalVoteModel
+	var out []ProposalVote
 	for rows.Next() {
-		var m ProposalVoteModel
+		var m ProposalVote
 		if err := rows.Scan(
 			&m.ID,
 			&m.ProposalID,

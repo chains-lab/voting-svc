@@ -12,7 +12,7 @@ import (
 
 const pollVotesTable = "poll_votes"
 
-type PollVoteModel struct {
+type PollVote struct {
 	ID        uuid.UUID `db:"id"`
 	PollID    uuid.UUID `db:"poll_id"`
 	UserID    uuid.UUID `db:"user_id"`
@@ -88,13 +88,13 @@ func (q PollVotesQ) Insert(ctx context.Context, in InsertPollVoteInput) error {
 
 // ---- Read
 
-func (q PollVotesQ) Get(ctx context.Context) (PollVoteModel, error) {
+func (q PollVotesQ) Get(ctx context.Context) (PollVote, error) {
 	query, args, err := q.selector.Limit(1).ToSql()
 	if err != nil {
-		return PollVoteModel{}, fmt.Errorf("building selector query for table %s: %w", pollVotesTable, err)
+		return PollVote{}, fmt.Errorf("building selector query for table %s: %w", pollVotesTable, err)
 	}
 
-	var pv PollVoteModel
+	var pv PollVote
 	var row *sql.Row
 	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		row = tx.QueryRowContext(ctx, query, args...)
@@ -112,7 +112,7 @@ func (q PollVotesQ) Get(ctx context.Context) (PollVoteModel, error) {
 	return pv, err
 }
 
-func (q PollVotesQ) Select(ctx context.Context) ([]PollVoteModel, error) {
+func (q PollVotesQ) Select(ctx context.Context) ([]PollVote, error) {
 	query, args, err := q.selector.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("building selector query for table %s: %w", pollVotesTable, err)
@@ -129,9 +129,9 @@ func (q PollVotesQ) Select(ctx context.Context) ([]PollVoteModel, error) {
 	}
 	defer rows.Close()
 
-	var out []PollVoteModel
+	var out []PollVote
 	for rows.Next() {
-		var pv PollVoteModel
+		var pv PollVote
 		if err := rows.Scan(
 			&pv.ID,
 			&pv.PollID,

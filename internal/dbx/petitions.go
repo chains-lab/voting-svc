@@ -17,7 +17,7 @@ type GeoPoint struct {
 	Lng float64
 }
 
-type PetitionModel struct {
+type Petition struct {
 	ID          uuid.UUID  `db:"id"`
 	CityID      uuid.UUID  `db:"city_id"`
 	Title       string     `db:"title"`
@@ -133,13 +133,13 @@ func (q PetitionsQ) Insert(ctx context.Context, in InsertPetitionInput) error {
 	return err
 }
 
-func (q PetitionsQ) Get(ctx context.Context) (PetitionModel, error) {
+func (q PetitionsQ) Get(ctx context.Context) (Petition, error) {
 	query, args, err := q.selector.Limit(1).ToSql()
 	if err != nil {
-		return PetitionModel{}, fmt.Errorf("building selector query for table %s: %w", petitionsTable, err)
+		return Petition{}, fmt.Errorf("building selector query for table %s: %w", petitionsTable, err)
 	}
 
-	var p PetitionModel
+	var p Petition
 	var row *sql.Row
 	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		row = tx.QueryRowContext(ctx, query, args...)
@@ -167,7 +167,7 @@ func (q PetitionsQ) Get(ctx context.Context) (PetitionModel, error) {
 	return p, err
 }
 
-func (q PetitionsQ) Select(ctx context.Context) ([]PetitionModel, error) {
+func (q PetitionsQ) Select(ctx context.Context) ([]Petition, error) {
 	query, args, err := q.selector.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("building selector query for table %s: %w", petitionsTable, err)
@@ -184,9 +184,9 @@ func (q PetitionsQ) Select(ctx context.Context) ([]PetitionModel, error) {
 	}
 	defer rows.Close()
 
-	var out []PetitionModel
+	var out []Petition
 	for rows.Next() {
-		var p PetitionModel
+		var p Petition
 		if err := rows.Scan(
 			&p.ID,
 			&p.CityID,
@@ -362,18 +362,18 @@ func (q PetitionsQ) Page(limit, offset uint64) PetitionsQ {
 	return q
 }
 
-// Спец-методы для счётчика подписей (если вы храните агрегат)
-func (q PetitionsQ) IncrementSignatures(ctx context.Context, delta int) error {
-	query, args, err := q.updater.
-		Set("signatures", sq.Expr("GREATEST(signatures + ?, 0)", delta)).
-		ToSql()
-	if err != nil {
-		return fmt.Errorf("building increment signatures query: %w", err)
-	}
-	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
-		_, err = tx.ExecContext(ctx, query, args...)
-	} else {
-		_, err = q.db.ExecContext(ctx, query, args...)
-	}
-	return err
-}
+//// Спец-методы для счётчика подписей (если вы храните агрегат)
+//func (q PetitionsQ) IncrementSignatures(ctx context.Context, delta int) error {
+//	query, args, err := q.updater.
+//		Set("signatures", sq.Expr("GREATEST(signatures + ?, 0)", delta)).
+//		ToSql()
+//	if err != nil {
+//		return fmt.Errorf("building increment signatures query: %w", err)
+//	}
+//	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
+//		_, err = tx.ExecContext(ctx, query, args...)
+//	} else {
+//		_, err = q.db.ExecContext(ctx, query, args...)
+//	}
+//	return err
+//}
